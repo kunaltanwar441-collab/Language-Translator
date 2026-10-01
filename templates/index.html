@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Language Translator</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static',filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌍 Language Translator</h1>
+
+<form method="POST">
+
+<textarea
+id="text"
+name="text"
+placeholder="Enter text here..."
+required></textarea>
+
+<div class="buttons">
+
+<button type="button" onclick="startRecognition()">
+🎤 Speak
+</button>
+
+</div>
+
+<div class="row">
+
+<div>
+
+<label>Source Language</label>
+
+<select name="source">
+
+{% for lang, code in languages.items() %}
+
+<option value="{{code}}">{{lang}}</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+<div>
+
+<label>Target Language</label>
+
+<select name="target">
+
+{% for lang, code in languages.items() %}
+
+<option value="{{code}}">{{lang}}</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+<button type="submit">Translate</button>
+
+</form>
+
+{% if translated %}
+
+<h2>Translated Text</h2>
+
+<div id="result">
+
+{{translated}}
+
+</div>
+
+<div class="buttons">
+
+<button onclick="copyText()">Copy</button>
+
+<button onclick="speakText()">🔊 Speak</button>
+
+</div>
+
+{% endif %}
+
+</div>
+
+<script>
+
+function copyText() {
+
+    let text = document.getElementById("result").innerText;
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+
+}
+
+function speakText() {
+
+    let text = document.getElementById("result").innerText;
+
+    let speech = new SpeechSynthesisUtterance(text);
+
+    speech.lang = "en-US";
+
+    window.speechSynthesis.speak(speech);
+
+}
+
+function startRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Speech Recognition is not supported in this browser.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = "en-US";
+
+    recognition.interimResults = false;
+
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onstart = function () {
+
+        alert("🎤 Speak now...");
+
+    };
+
+    recognition.onresult = function (event) {
+
+        document.getElementById("text").value =
+            event.results[0][0].transcript;
+
+    };
+
+    recognition.onerror = function (event) {
+
+        alert("Microphone Error: " + event.error);
+
+    };
+
+}
+
+</script>
+
+</body>
+
+</html>
